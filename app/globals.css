@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+/* ── DevTrack design system ───────────────────────────────────────────
+   White/off-white base · green as the single accent · near-black ink.
+   Green is used sparingly: CTAs, progress, active states, accent tags.
+   ──────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Color */
+  --color-bg: oklch(1 0 0); /* #ffffff  page base */
+  --color-bg-soft: oklch(0.982 0.004 145); /* #f7f8f6  panels, alt sections */
+  --color-ink: oklch(0.24 0.006 160); /* #1c1f1d  primary text */
+  --color-ink-soft: oklch(0.52 0.008 160); /* #6b716d  muted text, hints */
+  --color-border: oklch(0.92 0.005 150); /* #e4e7e3  hairlines, card edges */
+  --color-green: oklch(0.64 0.13 152); /* #34a05f  CTAs, progress, active */
+  --color-green-dark: oklch(0.54 0.12 152); /* #27814a  hover, depth */
+  --color-green-soft: oklch(0.96 0.025 152); /* #e7f3ec  active chips, tags */
+
+  /* Type */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-hanken), sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --radius-input: 10px;
+  --radius-chip: 9999px;
+
+  /* Shadow */
+  --shadow-soft: 0 1px 3px rgba(20, 30, 25, 0.06), 0 8px 24px rgba(20, 30, 25, 0.05);
+  --shadow-lift: 0 2px 6px rgba(20, 30, 25, 0.08), 0 16px 40px rgba(20, 30, 25, 0.07);
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-green-soft);
+    color: var(--color-green-dark);
+  }
+
+  /* Mono eyebrow helper */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-green-dark);
+  }
+}
+
+/* ── Motion ──────────────────────────────────────────────────────────── */
+
+/* Section reveal: starts hidden, .is-visible (added on intersect) plays it. */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 400ms var(--ease-out-soft),
+    transform 400ms var(--ease-out-soft);
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.78);
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 1.4s var(--ease-out-soft) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .animate-pulse-soft {
+    animation: none;
+  }
+}
