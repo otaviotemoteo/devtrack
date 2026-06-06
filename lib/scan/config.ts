@@ -1,0 +1,44 @@
+import { z } from "zod";
+
+/**
+ * ScanConfig — the answers collected by the onboarding form.
+ * Mirrors the onboarding UI: sources to scan, an optional time range,
+ * who the content is for (global profile vs a specific company), and the
+ * output language.
+ */
+export const scanConfigSchema = z.object({
+  sources: z.object({
+    // Scan the user's own repositories.
+    personalProjects: z.boolean(),
+    // Scan contributions made to organizations.
+    orgContributions: z.boolean(),
+    // Specific org logins to limit to. Empty = all orgs.
+    orgs: z.array(z.string()).default([]),
+  }),
+
+  // "YYYY-MM" strings. Omit/empty to scan all time.
+  dateFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, "Expected YYYY-MM")
+    .optional(),
+  dateTo: z
+    .string()
+    .regex(/^\d{4}-\d{2}$/, "Expected YYYY-MM")
+    .optional(),
+
+  // Who the generated content is tailored for.
+  target: z.discriminatedUnion("kind", [
+    z.object({ kind: z.literal("global") }),
+    z.object({
+      kind: z.literal("company"),
+      company: z.string().min(1, "Company name is required"),
+      role: z.string().optional(),
+      period: z.string().optional(),
+    }),
+  ]),
+
+  // Output language for the generated content.
+  language: z.enum(["pt", "en"]).default("en"),
+});
+
+export type ScanConfig = z.infer<typeof scanConfigSchema>;
