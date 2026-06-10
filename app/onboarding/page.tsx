@@ -2,15 +2,20 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { AppHeader } from "@/components/ui/app-header";
 import { ScanForm } from "@/components/onboarding/scan-form";
+import { VideoBackground } from "@/components/ui/video-background";
 
 export default async function OnboardingPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="relative min-h-screen bg-bg">
+      <VideoBackground
+        src="/background-1.mp4"
+        overlayClassName="bg-gradient-to-b from-bg/85 via-bg/65 to-bg/80"
+      />
       <AppHeader user={session.user} />
-      <main className="mx-auto max-w-5xl px-6 py-12">
+      <main className="relative z-10 mx-auto max-w-5xl px-6 py-12">
         <h1 className="font-display text-4xl font-bold tracking-tight text-ink">
           Let&apos;s scan your GitHub
         </h1>
