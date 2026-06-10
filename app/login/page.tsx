@@ -1,6 +1,16 @@
+import Link from "next/link";
 import { auth, signIn } from "@/auth";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
+import { VideoBackground } from "@/components/ui/video-background";
+
+function ArrowLeft({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+      <path d="M19 12H5M11 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 function GitHubMark({ className = "" }: { className?: string }) {
   return (
@@ -15,13 +25,22 @@ export default async function LoginPage() {
   if (session) redirect("/onboarding");
 
   return (
-    <main className="flex min-h-screen flex-col bg-bg">
-      <header className="mx-auto flex h-20 w-full max-w-6xl items-center px-6">
-        <Logo />
+    <main className="relative flex min-h-screen flex-col bg-bg">
+      <VideoBackground src="/background-2.mp4" overlayClassName="bg-bg/55" />
+
+      <header className="relative z-10 mx-auto flex h-20 w-full max-w-6xl items-center px-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-btn px-2.5 py-1.5 text-sm font-medium text-ink-soft transition-colors hover:bg-bg-soft hover:text-ink"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Link>
       </header>
 
-      <div className="flex flex-1 items-center justify-center px-6 pb-20">
-        <div className="w-full max-w-md rounded-card border border-border bg-bg p-8 text-center shadow-soft">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 pb-20">
+        <Logo className="mb-8" />
+        <div className="w-full max-w-md rounded-card border border-border bg-bg/90 p-8 text-center shadow-soft backdrop-blur-md">
           <p className="eyebrow mb-4">welcome</p>
           <h1 className="font-display text-2xl font-bold tracking-tight text-ink">
             Sign in to DevTrack
