@@ -39,6 +39,16 @@ export const scanConfigSchema = z.object({
 
   // Output language for the generated content.
   language: z.enum(["pt", "en"]).default("en"),
+
+  // Pre-scan repo selection. `repositories.id` list; if absent, the scan falls
+  // back to all repos flagged `selected = true` for the user.
+  selectedRepoIds: z.array(z.string()).optional(),
+
+  // Free-text instructions to shape the generated output sections.
+  extraInstructions: z.string().max(2000).optional(),
+
+  // Which generator runs in stage 2 of the harness.
+  generationType: z.enum(["linkedin", "cv", "linkedin_audit"]).default("linkedin"),
 });
 
 export type ScanConfig = z.infer<typeof scanConfigSchema>;
