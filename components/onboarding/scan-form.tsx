@@ -62,6 +62,7 @@ export function ScanForm() {
             }
           : { kind: "global" },
       language,
+      generationType: "linkedin",
     };
 
     setSubmitting(true);
