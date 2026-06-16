@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, integer, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  integer,
+  jsonb,
+  boolean,
+  unique,
+} from "drizzle-orm/pg-core";
 import { users } from "./auth-schema";
 
 export const scans = pgTable("scans", {
@@ -14,6 +22,8 @@ export const scans = pgTable("scans", {
     .default("pending"),
   progress: integer("progress").notNull().default(0),
   rawData: jsonb("rawData"),
+  // Stage-1 Evidence output: distilled, auditable, reused by every generator.
+  evidence: jsonb("evidence"),
   errorMessage: text("errorMessage"),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
@@ -25,7 +35,9 @@ export const generations = pgTable("generations", {
   scanId: text("scanId")
     .notNull()
     .references(() => scans.id, { onDelete: "cascade" }),
-  type: text("type", { enum: ["linkedin", "portfolio", "cv"] })
+  type: text("type", {
+    enum: ["linkedin", "portfolio", "cv", "linkedin_audit"],
+  })
     .notNull()
     .default("linkedin"),
   provider: text("provider").notNull(),
@@ -45,5 +57,62 @@ export const auditLogs = pgTable("audit_logs", {
     .references(() => users.id, { onDelete: "cascade" }),
   action: text("action").notNull(),
   metadata: jsonb("metadata"),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+// Cache of the user's GitHub repos plus their pre-scan selection + context.
+// Synced from GitHub when the pre-scan screen opens; `selected`/`userContext`
+// are user-owned and preserved across re-syncs.
+export const repositories = pgTable(
+  "repositories",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    githubId: integer("githubId").notNull(),
+    fullName: text("fullName").notNull(),
+    description: text("description"),
+    language: text("language"),
+    isPrivate: boolean("isPrivate").notNull().default(false),
+    isOrg: boolean("isOrg").notNull().default(false),
+    owner: text("owner").notNull(),
+    selected: boolean("selected").notNull().default(false),
+    userContext: text("userContext"),
+    lastSyncedAt: timestamp("lastSyncedAt", { mode: "date" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [unique().on(t.userId, t.githubId)]
+);
+
+// Uploaded documents (CVs), stored as extracted plain text for the analyzer.
+export const documents = pgTable("documents", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  kind: text("kind", { enum: ["cv", "other"] })
+    .notNull()
+    .default("cv"),
+  filename: text("filename").notNull(),
+  extractedText: text("extractedText").notNull(),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+});
+
+// Imported LinkedIn profile data, normalized to { headline, about, experience[], skills[] }.
+export const linkedinImports = pgTable("linkedin_imports", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  source: text("source", { enum: ["export", "apify"] }).notNull(),
+  data: jsonb("data").notNull(),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
