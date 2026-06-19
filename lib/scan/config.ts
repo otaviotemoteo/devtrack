@@ -7,14 +7,18 @@ import { z } from "zod";
  * output language.
  */
 export const scanConfigSchema = z.object({
-  sources: z.object({
-    // Scan the user's own repositories.
-    personalProjects: z.boolean(),
-    // Scan contributions made to organizations.
-    orgContributions: z.boolean(),
-    // Specific org logins to limit to. Empty = all orgs.
-    orgs: z.array(z.string()).default([]),
-  }),
+  // Legacy onboarding sources. The /scan/new screen drives selection via
+  // `selectedRepoIds`, so this is optional now (kept for the legacy ScanForm).
+  sources: z
+    .object({
+      // Scan the user's own repositories.
+      personalProjects: z.boolean(),
+      // Scan contributions made to organizations.
+      orgContributions: z.boolean(),
+      // Specific org logins to limit to. Empty = all orgs.
+      orgs: z.array(z.string()).default([]),
+    })
+    .optional(),
 
   // "YYYY-MM" strings. Omit/empty to scan all time.
   dateFrom: z
@@ -44,8 +48,16 @@ export const scanConfigSchema = z.object({
   // back to all repos flagged `selected = true` for the user.
   selectedRepoIds: z.array(z.string()).optional(),
 
+  // Per-organization emphasis notes (org login → note), gathered on /scan/new
+  // and folded into evidence extraction as extra signal.
+  orgEmphasis: z.record(z.string()).optional(),
+
   // Free-text instructions to shape the generated output sections.
   extraInstructions: z.string().max(2000).optional(),
+
+  // Standing profile context, merged from profile_settings at generation time.
+  targetRole: z.string().optional(),
+  industry: z.string().optional(),
 
   // Which generator runs in stage 2 of the harness.
   generationType: z.enum(["linkedin", "cv", "linkedin_audit"]).default("linkedin"),
