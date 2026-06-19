@@ -4,7 +4,7 @@ import { aiProvider, resolveModel } from "../provider";
 import {
   COMPLIANCE_RULES,
   cleanList,
-  extraInstructionsLine,
+  profileContextLines,
   languageLabel,
 } from "../shared";
 import type { Evidence } from "../evidence";
@@ -16,6 +16,9 @@ export const cvOutputSchema = z.object({
   score: z
     .number()
     .describe("0-100 overall CV quality / ATS-readiness score"),
+  verdict: z
+    .string()
+    .describe("One-line summary verdict, e.g. 'Strong base — tighten the impact'"),
   strengths: z.array(z.string()).describe("What the CV already does well"),
   issues: z
     .array(
@@ -26,6 +29,9 @@ export const cvOutputSchema = z.object({
       })
     )
     .describe("Problems and how to fix them"),
+  originalSummary: z
+    .string()
+    .describe("The CV's current professional summary, quoted (empty if none)"),
   improvedSummary: z.string().describe("Rewritten professional summary"),
   improvedBullets: z
     .array(
@@ -64,7 +70,7 @@ Rules:
 - Ground every suggestion in either the CV text or the evidence — do not invent achievements.
 ${COMPLIANCE_RULES}
 
-Example issue (anonymized, for calibration): { "area": "Experience", "problem": "Bullets describe duties, not outcomes ('responsible for the API').", "fix": "Lead with impact: 'Cut API p95 latency 40% by adding a read-through cache.'" }${extraInstructionsLine(
+Example issue (anonymized, for calibration): { "area": "Experience", "problem": "Bullets describe duties, not outcomes ('responsible for the API').", "fix": "Lead with impact: 'Cut API p95 latency 40% by adding a read-through cache.'" }${profileContextLines(
     config
   )}`;
 
