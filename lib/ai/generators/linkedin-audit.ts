@@ -4,7 +4,7 @@ import { aiProvider, resolveModel } from "../provider";
 import {
   COMPLIANCE_RULES,
   cleanList,
-  extraInstructionsLine,
+  profileContextLines,
   languageLabel,
 } from "../shared";
 import type { Evidence } from "../evidence";
@@ -14,6 +14,9 @@ import type { ScanConfig } from "@/lib/scan/config";
 // Flat schema — audits an imported LinkedIn profile against the GitHub Evidence.
 export const auditOutputSchema = z.object({
   score: z.number().describe("0-100 overall profile strength score"),
+  verdict: z
+    .string()
+    .describe("One-line summary verdict, e.g. 'Decent — your headline is underselling you'"),
   gaps: z
     .array(
       z.object({
@@ -61,7 +64,7 @@ Rules:
 ${COMPLIANCE_RULES}
 - Keep rewrites first-person, professional, and human.
 
-Example gap (anonymized, for calibration): { "section": "Headline", "gap": "Generic title with no specialization or value.", "suggestion": "Name the domain and the outcome: 'Platform engineer • CI/CD • ship 5x faster'." }${extraInstructionsLine(
+Example gap (anonymized, for calibration): { "section": "Headline", "gap": "Generic title with no specialization or value.", "suggestion": "Name the domain and the outcome: 'Platform engineer • CI/CD • ship 5x faster'." }${profileContextLines(
     config
   )}`;
 
