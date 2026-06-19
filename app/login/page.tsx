@@ -22,7 +22,7 @@ function GitHubMark({ className = "" }: { className?: string }) {
 
 export default async function LoginPage() {
   const session = await auth();
-  if (session) redirect("/onboarding");
+  if (session) redirect("/");
 
   return (
     <main className="relative flex min-h-screen flex-col bg-bg">
@@ -54,7 +54,7 @@ export default async function LoginPage() {
             className="mt-8"
             action={async () => {
               "use server";
-              await signIn("github", { redirectTo: "/onboarding" });
+              await signIn("github", { redirectTo: "/" });
             }}
           >
             <button
