@@ -1,11 +1,12 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { scans, generations, documents, linkedinImports } from "@/db/schema";
 import { evidenceSchema, type Evidence } from "@/lib/ai/evidence";
 import { generateLinkedIn } from "@/lib/ai/generators/linkedin";
 import { analyzeCv } from "@/lib/ai/generators/cv";
 import { auditLinkedIn } from "@/lib/ai/generators/linkedin-audit";
-import { scanConfigSchema } from "@/lib/scan/config";
+import { scanConfigSchema, type ScanConfig } from "@/lib/scan/config";
+import { getOrCreateProfile } from "@/lib/profile";
 
 export type GenerationType = "linkedin" | "cv" | "linkedin_audit";
 
@@ -39,19 +40,36 @@ export async function runGeneration(
   const config = scanConfigSchema.parse(scan.config);
   const evidence: Evidence = evidenceSchema.parse(scan.evidence);
 
+  // Merge standing profile context as defaults — it's the default context for
+  // every generator.
+  const profile = await getOrCreateProfile(scan.userId);
+  const mergedInstructions = [profile.extraInstructions, config.extraInstructions]
+    .filter(Boolean)
+    .join("\n\n");
+  const effectiveConfig: ScanConfig = {
+    ...config,
+    targetRole: config.targetRole ?? profile.targetRole ?? undefined,
+    industry: config.industry ?? profile.industry ?? undefined,
+    extraInstructions: mergedInstructions || undefined,
+  };
+
   let result;
   switch (type) {
     case "linkedin":
-      result = await generateLinkedIn(evidence, config);
+      result = await generateLinkedIn(evidence, effectiveConfig);
       break;
     case "cv":
-      result = await analyzeCv(evidence, await latestCvText(scan.userId), config);
+      result = await analyzeCv(
+        evidence,
+        await latestCvText(scan.userId),
+        effectiveConfig
+      );
       break;
     case "linkedin_audit":
       result = await auditLinkedIn(
         evidence,
         await latestLinkedInProfile(scan.userId),
-        config
+        effectiveConfig
       );
       break;
     default:
@@ -90,6 +108,17 @@ export async function runGeneration(
     .returning({ id: generations.id });
 
   return { generationId: inserted.id, type, output };
+}
+
+/** Most recent scan that has stored evidence — the source CV/audit reuse. */
+export async function getLatestEvidenceScan(userId: string) {
+  const [scan] = await db
+    .select()
+    .from(scans)
+    .where(and(eq(scans.userId, userId), isNotNull(scans.evidence)))
+    .orderBy(desc(scans.createdAt))
+    .limit(1);
+  return scan ?? null;
 }
 
 async function latestCvText(userId: string): Promise<string> {
