@@ -39,9 +39,12 @@ export async function runScan(scanId: string): Promise<void> {
       owner: r.owner,
       name: r.fullName.split("/")[1] ?? r.fullName,
     }));
+    // Per-repo context for evidence extraction, sourced from per-org emphasis.
+    const orgEmphasis = config.orgEmphasis ?? {};
     const repoContext: Record<string, string> = {};
     for (const r of repoRows) {
-      if (r.userContext) repoContext[r.fullName] = r.userContext;
+      const note = orgEmphasis[r.owner];
+      if (note) repoContext[r.fullName] = note;
     }
 
     // 2. Collect GitHub activity (0 → 60). Rescale the collector's 0-100 band.
