@@ -116,3 +116,24 @@ export const linkedinImports = pgTable("linkedin_imports", {
   data: jsonb("data").notNull(),
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
 });
+
+// Standing profile context + onboarding state (1:1 with user). The context
+// fields (targetRole/industry/extraInstructions) are the default context fed to
+// every generator. `onboarded` gates the first-run path picker.
+export const profileSettings = pgTable("profile_settings", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  targetRole: text("targetRole"),
+  industry: text("industry"),
+  extraInstructions: text("extraInstructions"),
+  onboarded: boolean("onboarded").notNull().default(false),
+  firstChoice: text("firstChoice", { enum: ["linkedin", "cv", "github"] }),
+  githubLogin: text("githubLogin"), // cached @handle for the profile header
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
+});
