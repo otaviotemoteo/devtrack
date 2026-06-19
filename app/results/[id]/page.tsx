@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { scans, generations } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import { AppHeader } from "@/components/ui/app-header";
+import { TopNav } from "@/components/ui/top-nav";
 import { CopyBlock, CopyButton } from "@/components/results/copy-block";
 import { linkedinOutputSchema } from "@/lib/ai";
 
@@ -36,7 +36,10 @@ export default async function ResultsPage({
 
   return (
     <div className="min-h-screen bg-bg">
-      <AppHeader user={session.user} />
+      <TopNav
+        variant="app"
+        user={{ name: session.user.name, image: session.user.image }}
+      />
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -48,7 +51,7 @@ export default async function ResultsPage({
             </p>
           </div>
           <Link
-            href="/onboarding"
+            href="/scan/new"
             className="shrink-0 rounded-btn border border-border bg-bg px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-bg-soft"
           >
             Scan again
