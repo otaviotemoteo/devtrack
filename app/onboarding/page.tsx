@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { AppHeader } from "@/components/ui/app-header";
+import { TopNav } from "@/components/ui/top-nav";
 import { ScanForm } from "@/components/onboarding/scan-form";
 import { VideoBackground } from "@/components/ui/video-background";
 
@@ -14,7 +14,10 @@ export default async function OnboardingPage() {
         src="/background-1.mp4"
         overlayClassName="bg-gradient-to-b from-bg/85 via-bg/65 to-bg/80"
       />
-      <AppHeader user={session.user} />
+      <TopNav
+        variant="app"
+        user={{ name: session.user.name, image: session.user.image }}
+      />
       <main className="relative z-10 mx-auto max-w-5xl px-6 py-12">
         <h1 className="font-display text-4xl font-bold tracking-tight text-ink">
           Let&apos;s scan your GitHub
