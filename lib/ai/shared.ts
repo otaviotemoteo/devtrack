@@ -23,6 +23,21 @@ export function extraInstructionsLine(config: ScanConfig): string {
     : "";
 }
 
+/**
+ * Standing profile context (target role / industry / extra instructions) fed
+ * into every generator's system prompt. Sourced from profile_settings and
+ * merged into the config by `runGeneration`.
+ */
+export function profileContextLines(config: ScanConfig): string {
+  const parts: string[] = [];
+  if (config.targetRole) parts.push(`Target role: ${config.targetRole}`);
+  if (config.industry) parts.push(`Industry: ${config.industry}`);
+  if (config.extraInstructions) {
+    parts.push(`Additional user instructions (honor these): ${config.extraInstructions}`);
+  }
+  return parts.length ? `\n\nProfile context:\n- ${parts.join("\n- ")}` : "";
+}
+
 /** Trim, drop empties, dedupe (case-insensitive), and cap a string list. */
 export function cleanList(items: string[], max = 20): string[] {
   const seen = new Set<string>();
