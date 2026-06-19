@@ -4,7 +4,7 @@ import { aiProvider, resolveModel } from "../provider";
 import {
   COMPLIANCE_RULES,
   cleanList,
-  extraInstructionsLine,
+  profileContextLines,
   languageLabel,
   targetLine,
 } from "../shared";
@@ -58,7 +58,7 @@ ${COMPLIANCE_RULES}
 
 Example (anonymized, for tone calibration only):
 Headline: "Backend engineer • distributed systems • I make slow services fast"
-About excerpt: "I build the unglamorous parts that keep products up: queues, caches, and the boring reliability work users never see but always feel."${extraInstructionsLine(
+About excerpt: "I build the unglamorous parts that keep products up: queues, caches, and the boring reliability work users never see but always feel."${profileContextLines(
     config
   )}`;
 
