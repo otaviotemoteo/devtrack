@@ -1,5 +1,6 @@
-// FAQ: native <details> accordion; the +/× marker and open state are pure CSS.
-// Copy lives in a plain array so apostrophes need no JSX entity escaping.
+// FAQ: native <details> accordion; the +/× marker and open state are pure CSS
+// (.qa-plus in landing.css). Copy lives in a plain array so apostrophes need no
+// JSX entity escaping.
 const FAQ: { q: string; a: string }[] = [
   {
     q: "Does DevTrack change my GitHub or post to my profile?",
@@ -37,20 +38,26 @@ const FAQ: { q: string; a: string }[] = [
 
 export function Faq() {
   return (
-    <section className="sec sec-soft">
-      <div className="wrap">
-        <div className="sec-head">
-          <div className="eyebrow">Questions</div>
-          <h2>FAQ</h2>
+    <section className="bg-lp-bg-soft py-24 max-[560px]:py-[70px]">
+      <div className="mx-auto max-w-[1120px] px-8 max-[560px]:px-5">
+        <div className="mx-auto mb-14 max-w-[660px] text-center">
+          <div className="font-lp-mono text-[12.5px] font-bold tracking-[1.8px] text-lp-green-dark uppercase">
+            Questions
+          </div>
+          <h2 className="mt-4 text-[clamp(30px,4vw,44px)] leading-[1.08] font-extrabold tracking-[-0.02em]">
+            FAQ
+          </h2>
         </div>
-        <div className="faq">
+        <div className="mx-auto max-w-[800px]">
           {FAQ.map((item) => (
-            <details className="qa" key={item.q}>
-              <summary>
+            <details className="border-b border-lp-border" key={item.q}>
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-5 px-1 py-[22px] text-[18.5px] font-bold [&::-webkit-details-marker]:hidden">
                 {item.q}
-                <span className="plus" />
+                <span className="qa-plus" />
               </summary>
-              <div className="ans">{item.a}</div>
+              <div className="max-w-[680px] px-1 pb-6 text-[16.5px] leading-[1.6] text-lp-ink-soft">
+                {item.a}
+              </div>
             </details>
           ))}
         </div>
