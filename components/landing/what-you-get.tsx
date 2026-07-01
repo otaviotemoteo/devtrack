@@ -3,21 +3,46 @@ import type { CSSProperties } from "react";
 // The conic-gradient score ring reads its fill from a `--p` custom property.
 const ring = (p: number): CSSProperties => ({ ["--p" as string]: p }) as CSSProperties;
 
+// Shared classes for the alternating feature cards. The mockup preview
+// primitives (.screen/.mini-block/.bar/.pchip/.ba-label/.ring) stay as residual
+// CSS classes — decorative repeated bits that gain nothing from utilities.
+const CARD =
+  "bigcard-frame relative grid grid-cols-[1.05fr_1fr] rounded-[22px] border-[1.5px] border-lp-border bg-white shadow-lp-sm max-[920px]:grid-cols-1";
+const BODY = "flex flex-col justify-center px-11 py-[46px]";
+const IC =
+  "mb-[18px] flex h-12 w-12 items-center justify-center rounded-[13px] bg-lp-green-soft font-lp-mono text-[17px] font-bold text-lp-green-deep";
+const H3 = "text-[27px] font-extrabold leading-[1.08] tracking-[-0.02em]";
+const META =
+  "mt-3 font-lp-mono text-[12px] font-bold tracking-[1.2px] uppercase text-lp-ink-faint";
+const P = "mt-[14px] max-w-[420px] text-[16.5px] leading-[1.55] text-lp-ink-soft";
+// media panel: `L` = left (normal) card, `R` = right (reversed) card
+const MEDIA_L =
+  "relative flex min-h-[330px] items-center justify-center overflow-hidden rounded-l-[21px] bg-lp-green-tint p-9 max-[920px]:order-[-1] max-[920px]:min-h-0 max-[920px]:rounded-t-[21px] max-[920px]:rounded-bl-none";
+const MEDIA_R =
+  "relative order-2 flex min-h-[330px] items-center justify-center overflow-hidden rounded-r-[21px] bg-lp-green-tint p-9 max-[920px]:order-[-1] max-[920px]:min-h-0 max-[920px]:rounded-t-[21px] max-[920px]:rounded-br-none";
+const BODY_R = `${BODY} order-1 max-[920px]:order-0`;
+
 // "What you get" (#what): four alternating feature cards, each with a mockup
 // preview in the media panel and copy in the body.
 export function WhatYouGet() {
   return (
-    <section className="sec" id="what">
-      <div className="wrap">
-        <div className="sec-head">
-          <div className="eyebrow">Features</div>
-          <h2>What you get</h2>
-          <p className="lead">From your real work — copy-paste ready.</p>
+    <section id="what" className="py-24 max-[560px]:py-[70px]">
+      <div className="mx-auto max-w-[1120px] px-8 max-[560px]:px-5">
+        <div className="mx-auto mb-14 max-w-[660px] text-center">
+          <div className="font-lp-mono text-[12.5px] font-bold tracking-[1.8px] text-lp-green-dark uppercase">
+            Features
+          </div>
+          <h2 className="mt-4 text-[clamp(30px,4vw,44px)] leading-[1.08] font-extrabold tracking-[-0.02em]">
+            What you get
+          </h2>
+          <p className="mt-4 text-[20px] leading-[1.55] text-lp-ink-soft">
+            From your real work — copy-paste ready.
+          </p>
         </div>
-        <div className="bigcards">
+        <div className="mx-auto flex max-w-[1000px] flex-col gap-10">
           {/* LinkedIn content */}
-          <div className="bigcard">
-            <div className="media pcb-dots">
+          <div className={CARD}>
+            <div className={MEDIA_L}>
               <div className="screen">
                 <div className="mini-block">
                   <div className="mini-tag">headline</div>
@@ -43,11 +68,11 @@ export function WhatYouGet() {
                 </div>
               </div>
             </div>
-            <div className="body">
-              <div className="ic">in</div>
-              <h3>LinkedIn content</h3>
-              <div className="meta">Headline · About · Skills · Experience</div>
-              <p>
+            <div className={BODY}>
+              <div className={IC}>in</div>
+              <h3 className={H3}>LinkedIn content</h3>
+              <div className={META}>Headline · About · Skills · Experience</div>
+              <p className={P}>
                 Headline, about, skills, and experience — copy-paste ready, in
                 your voice.
               </p>
@@ -55,8 +80,8 @@ export function WhatYouGet() {
           </div>
 
           {/* CV improvements (reversed) */}
-          <div className="bigcard rev">
-            <div className="media pcb-dots">
+          <div className={CARD}>
+            <div className={MEDIA_R}>
               <div
                 className="screen"
                 style={{ display: "flex", gap: 18, alignItems: "center", maxWidth: 380 }}
@@ -68,13 +93,13 @@ export function WhatYouGet() {
                   </i>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div className="ba-label" style={{ color: "var(--ink-faint)" }}>
+                  <div className="ba-label" style={{ color: "var(--color-lp-ink-faint)" }}>
                     before
                   </div>
                   <div className="bar" style={{ width: "82%" }} />
                   <div
                     className="ba-label"
-                    style={{ color: "var(--green-dark)", marginTop: 11 }}
+                    style={{ color: "var(--color-lp-green-dark)", marginTop: 11 }}
                   >
                     after ✦
                   </div>
@@ -83,11 +108,11 @@ export function WhatYouGet() {
                 </div>
               </div>
             </div>
-            <div className="body">
-              <div className="ic">✓</div>
-              <h3>CV improvements</h3>
-              <div className="meta">Score · Before→After · Keywords</div>
-              <p>
+            <div className={BODY_R}>
+              <div className={IC}>✓</div>
+              <h3 className={H3}>CV improvements</h3>
+              <div className={META}>Score · Before→After · Keywords</div>
+              <p className={P}>
                 A score, before→after bullet rewrites, and the keywords
                 you&apos;re missing. Stop getting filtered by ATS.
               </p>
@@ -95,8 +120,8 @@ export function WhatYouGet() {
           </div>
 
           {/* LinkedIn audit */}
-          <div className="bigcard">
-            <div className="media pcb-dots">
+          <div className={CARD}>
+            <div className={MEDIA_L}>
               <div className="screen">
                 <div
                   style={{
@@ -113,7 +138,7 @@ export function WhatYouGet() {
                     </i>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div className="mini-tag" style={{ color: "var(--ink-faint)" }}>
+                    <div className="mini-tag" style={{ color: "var(--color-lp-ink-faint)" }}>
                       your score
                     </div>
                     <div className="bar" style={{ width: "72%", marginTop: 8 }} />
@@ -121,13 +146,13 @@ export function WhatYouGet() {
                   </div>
                 </div>
                 <div className="mini-block">
-                  <div className="ba-label" style={{ color: "var(--ink-faint)" }}>
+                  <div className="ba-label" style={{ color: "var(--color-lp-ink-faint)" }}>
                     headline now
                   </div>
                   <div className="bar" style={{ width: "74%", marginTop: 5 }} />
                   <div
                     className="ba-label"
-                    style={{ color: "var(--green-dark)", marginTop: 9 }}
+                    style={{ color: "var(--color-lp-green-dark)", marginTop: 9 }}
                   >
                     improved ✦
                   </div>
@@ -135,11 +160,11 @@ export function WhatYouGet() {
                 </div>
               </div>
             </div>
-            <div className="body">
-              <div className="ic">◎</div>
-              <h3>LinkedIn audit</h3>
-              <div className="meta">Score · Gaps · Improved profile</div>
-              <p>
+            <div className={BODY}>
+              <div className={IC}>◎</div>
+              <h3 className={H3}>LinkedIn audit</h3>
+              <div className={META}>Score · Gaps · Improved profile</div>
+              <p className={P}>
                 See what&apos;s underselling you, with concrete fixes and an
                 improved profile, scored.
               </p>
@@ -147,8 +172,8 @@ export function WhatYouGet() {
           </div>
 
           {/* Grounded (reversed) */}
-          <div className="bigcard rev">
-            <div className="media pcb-dots">
+          <div className={CARD}>
+            <div className={MEDIA_R}>
               <div
                 className="screen"
                 style={{
@@ -181,7 +206,7 @@ export function WhatYouGet() {
                   <text
                     x="22"
                     y="135"
-                    style={{ fontFamily: "var(--mono)" }}
+                    style={{ fontFamily: "var(--font-lp-mono)" }}
                     fontSize={11}
                     fill="#5f6863"
                   >
@@ -190,7 +215,7 @@ export function WhatYouGet() {
                   <text
                     x="196"
                     y="26"
-                    style={{ fontFamily: "var(--mono)" }}
+                    style={{ fontFamily: "var(--font-lp-mono)" }}
                     fontSize={11}
                     fill="#237a45"
                   >
@@ -199,11 +224,11 @@ export function WhatYouGet() {
                 </svg>
               </div>
             </div>
-            <div className="body">
-              <div className="ic">{"</>"}</div>
-              <h3>Grounded in real work</h3>
-              <div className="meta">Commit · PR · Traceable</div>
-              <p>
+            <div className={BODY_R}>
+              <div className={IC}>{"</>"}</div>
+              <h3 className={H3}>Grounded in real work</h3>
+              <div className={META}>Commit · PR · Traceable</div>
+              <p className={P}>
                 No buzzwords, no invented claims. Every line traces back to an
                 actual commit or PR.
               </p>
