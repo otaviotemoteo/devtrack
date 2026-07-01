@@ -88,13 +88,13 @@ export function HowItWorks() {
 
   return (
     <>
-      {/* Mobile (< md): no heavy scrub — stacked static layout. */}
-      <StaticHowItWorks className="md:hidden" />
+      {/* Mobile / tablet (< lg): no heavy scrub — stacked static layout. */}
+      <StaticHowItWorks className="lg:hidden" />
 
-      {/* Desktop (md+): pinned scroll-scrub. */}
+      {/* Desktop (lg+): pinned scroll-scrub. */}
       <section
         ref={sectionRef}
-        className="relative hidden border-y border-border bg-bg-soft md:block"
+        className="relative hidden border-y border-border bg-bg-soft lg:block"
         style={{ height: "400vh" }}
       >
         <div className="sticky top-0 flex h-screen flex-col items-center justify-center gap-10 px-6">
@@ -121,7 +121,7 @@ function StaticHowItWorks({ className = "" }: { className?: string }) {
             How it works
           </h2>
         </Reveal>
-        <div className="mt-10 grid items-center gap-10 md:grid-cols-2">
+        <div className="mt-10 grid items-center gap-10 lg:grid-cols-2">
           <Roadmap activeStep={STEPS.length - 1} />
           <StaticPanel />
         </div>
