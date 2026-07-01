@@ -33,6 +33,26 @@
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Landing (marketing) palette ──────────────────────────────────────
+     The reference design's exact hexes, namespaced `lp-` so they don't
+     collide with the app's oklch tokens above. Used only by the landing. */
+  --color-lp-bg: #ffffff;
+  --color-lp-bg-soft: #f6f8f5;
+  --color-lp-bg-green: #eef6f0;
+  --color-lp-ink: #181c19;
+  --color-lp-ink-soft: #5f6863;
+  --color-lp-ink-faint: #9aa39d;
+  --color-lp-border: #e4e8e3;
+  --color-lp-border-soft: #eef1ec;
+  --color-lp-green: #2f9e5a;
+  --color-lp-green-dark: #237a45;
+  --color-lp-green-deep: #1c5d35;
+  --color-lp-green-soft: #e2f1e7;
+  --color-lp-green-tint: #f0f8f2;
+  --shadow-lp-sm: 0 1px 2px rgba(24, 40, 30, 0.04), 0 4px 14px rgba(24, 40, 30, 0.05);
+  --shadow-lp-md: 0 2px 6px rgba(24, 40, 30, 0.05), 0 16px 40px rgba(24, 40, 30, 0.08);
+  --font-lp-mono: var(--font-space-mono), ui-monospace, monospace;
 }
 
 @layer base {
