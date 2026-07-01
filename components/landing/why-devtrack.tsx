@@ -155,17 +155,21 @@ export function WhyDevTrack() {
   }, []);
 
   return (
-    <section className="sec sec-soft">
-      <div className="wrap">
-        <div className="sec-head">
-          <div className="eyebrow">Why DevTrack</div>
-          <h2>Your work is proof. It just never gets seen.</h2>
-          <p className="lead">
+    <section className="bg-lp-bg-soft py-24 max-[560px]:py-[70px]">
+      <div className="mx-auto max-w-[1120px] px-8 max-[560px]:px-5">
+        <div className="mx-auto mb-14 max-w-[660px] text-center">
+          <div className="font-lp-mono text-[12.5px] font-bold tracking-[1.8px] text-lp-green-dark uppercase">
+            Why DevTrack
+          </div>
+          <h2 className="mt-4 text-[clamp(30px,4vw,44px)] leading-[1.08] font-extrabold tracking-[-0.02em]">
+            Your work is proof. It just never gets seen.
+          </h2>
+          <p className="mt-4 text-[20px] leading-[1.55] text-lp-ink-soft">
             Your GitHub is full of proof — shipped features, solved problems,
             real impact. But it never reaches the places that decide your career.
           </p>
         </div>
-        <div className="radboard pcb-dots" id="radboard" ref={boardRef}>
+        <div className="radboard" id="radboard" ref={boardRef}>
           <svg className="radspokes" id="radspokes" preserveAspectRatio="none" />
           <div className="radrow gaps">
             {GAPS.map((g) => (
