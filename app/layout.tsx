@@ -60,7 +60,11 @@ export default function RootLayout({
       lang="en"
       className={`${hanken.variable} ${bricolage.variable} ${jetbrains.variable} ${kalam.variable} ${spaceMono.variable}`}
     >
-      <body>{children}</body>
+      {/* suppressHydrationWarning: browser extensions (ColorZilla's
+          cz-shortcut-listen, Grammarly, etc.) inject attributes on <body>
+          before hydration. This suppresses only <body>'s own attribute diffs,
+          not its children. */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
