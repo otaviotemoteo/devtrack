@@ -27,7 +27,7 @@ export function LandingPage() {
         </symbol>
       </svg>
 
-      <div className="page">
+      <div className="relative bg-lp-bg font-sans text-[18px] leading-[1.6] text-lp-ink antialiased max-[560px]:text-[17px]">
         <Nav />
         <Hero />
         <WhyDevTrack />
