@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { signIn, signOut } from "next-auth/react";
+import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Logo } from "@/components/ui/logo";
 
 type Variant = "landing" | "focused" | "app";
@@ -17,7 +18,8 @@ interface TopNavProps {
  * One nav shell, three states. Wordmark always links home (`/`).
  * - landing: anchor links + green "Sign in with GitHub"
  * - focused: wordmark + muted "WORKING…" (used while processing and on /start)
- * - app: wordmark + "Sign out" + avatar
+ * - app: wordmark + username/avatar linking to /profile ("Complete your
+ *   profile" pill when the session has no name yet)
  */
 export function TopNav({ variant = "app", user, working = false }: TopNavProps) {
   const effective: Variant = working ? "focused" : variant;
@@ -69,26 +71,51 @@ function AppActions({
 }: {
   user?: { name?: string | null; image?: string | null };
 }) {
-  return (
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => signOut({ callbackUrl: "/" })}
-        className="text-sm text-ink-soft transition-colors hover:text-ink"
+  if (!user?.name) {
+    return (
+      <Link
+        href="/profile"
+        className="inline-flex items-center gap-2 rounded-full bg-green px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark"
       >
-        Sign out
-      </button>
+        <UserIcon className="h-4 w-4" />
+        Complete your profile
+      </Link>
+    );
+  }
+
+  return (
+    <Link href="/profile" className="group flex items-center gap-3">
+      <span className="text-sm font-medium text-ink-soft transition-colors group-hover:text-ink">
+        {user.name}
+      </span>
       <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-border bg-bg-soft">
-        {user?.image ? (
+        {user.image ? (
           <Image
             src={user.image}
-            alt={user.name ?? "You"}
+            alt={user.name}
             width={36}
             height={36}
             className="h-full w-full object-cover"
           />
         ) : null}
       </span>
-    </div>
+    </Link>
+  );
+}
+
+function UserIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" strokeLinecap="round" />
+    </svg>
   );
 }
 
