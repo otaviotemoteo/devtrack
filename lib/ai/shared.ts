@@ -31,8 +31,28 @@ export function extraInstructionsLine(config: ScanConfig): string {
  */
 export function profileContextLines(config: ScanConfig): string {
   const parts: string[] = [];
+  if (config.situation === "employed") {
+    const where = config.currentCompany ? ` at ${config.currentCompany}` : "";
+    const since = config.currentSince ? ` (since ${config.currentSince})` : "";
+    parts.push(
+      config.currentRole
+        ? `Currently working as ${config.currentRole}${where}${since} — sharpen how existing experience is presented.`
+        : `Currently employed${where}${since} — sharpen how existing experience is presented.`
+    );
+  } else if (config.situation === "searching") {
+    parts.push("Actively looking for a job — angle content toward landing the target role.");
+  } else if (config.situation === "student") {
+    parts.push("Student / early career, little or no formal experience — lean on projects and learning.");
+  }
   if (config.targetRole) parts.push(`Target role: ${config.targetRole}`);
   if (config.industry) parts.push(`Industry: ${config.industry}`);
+  for (const exp of (config.experiences ?? []).slice(0, 5)) {
+    const period = exp.period ? ` (${exp.period})` : "";
+    parts.push(`Work experience (user-provided): ${exp.role} at ${exp.company}${period}`);
+  }
+  if (config.projects) {
+    parts.push(`Projects (user-described): ${config.projects}`);
+  }
   if (config.extraInstructions) {
     parts.push(`Additional user instructions (honor these): ${config.extraInstructions}`);
   }
