@@ -10,18 +10,21 @@ export function AuditResult({
   scanId,
 }: {
   audit: AuditOutput;
-  scanId: string;
+  scanId: string | null;
 }) {
   return (
     <>
       <Card className="flex items-center justify-between gap-4 p-7">
         <ScoreRing score={audit.score} verdict={audit.verdict} />
-        <RegenerateButton
-          scanId={scanId}
-          type="linkedin_audit"
-          resultBase="/linkedin"
-          label="Re-import"
-        />
+        {/* Regeneration is scan-anchored; standalone results re-run via re-import. */}
+        {scanId && (
+          <RegenerateButton
+            scanId={scanId}
+            type="linkedin_audit"
+            resultBase="/linkedin"
+            label="Re-import"
+          />
+        )}
       </Card>
 
       <section>
