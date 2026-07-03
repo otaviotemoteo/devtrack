@@ -11,12 +11,14 @@ const bodySchema = z
     targetRole: z.string().max(200).nullable().optional(),
     industry: z.string().max(200).nullable().optional(),
     extraInstructions: z.string().max(2000).nullable().optional(),
+    contextPromptDismissed: z.boolean().optional(),
   })
   .refine(
     (d) =>
       d.targetRole !== undefined ||
       d.industry !== undefined ||
-      d.extraInstructions !== undefined,
+      d.extraInstructions !== undefined ||
+      d.contextPromptDismissed !== undefined,
     { message: "Provide at least one field" }
   );
 
