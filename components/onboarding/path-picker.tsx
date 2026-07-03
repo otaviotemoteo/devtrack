@@ -7,10 +7,10 @@ const PATHS = [
   {
     key: "linkedin",
     glyph: "in",
-    title: "Build my LinkedIn",
-    subtitle: "Turn your GitHub work into profile content.",
-    badge: "most popular" as string | null,
-    href: "/scan/new?type=linkedin",
+    title: "Audit my LinkedIn",
+    subtitle: "Import your profile for a scored audit — no GitHub needed.",
+    badge: null as string | null,
+    href: "/linkedin",
   },
   {
     key: "cv",
@@ -23,9 +23,9 @@ const PATHS = [
   {
     key: "github",
     glyph: "</>",
-    title: "Connect GitHub & scan",
-    subtitle: "Pull in your real commits and PRs.",
-    badge: null as string | null,
+    title: "Scan my GitHub",
+    subtitle: "Discover work you don't even remember shipping — turned into LinkedIn-ready content.",
+    badge: "discovery" as string | null,
     href: "/scan/new",
   },
 ] as const;
@@ -59,13 +59,13 @@ export function PathPicker() {
       </p>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-3">
-        {PATHS.map((p, i) => (
+        {PATHS.map((p) => (
           <button
             key={p.key}
             onClick={() => choose(p.key, p.href)}
             disabled={busy}
             className={`flex flex-col items-center gap-4 rounded-card border bg-bg p-8 text-center shadow-soft transition-all duration-200 hover:-translate-y-1 disabled:opacity-60 ${
-              i === 0 ? "border-green" : "border-border"
+              p.badge ? "border-green" : "border-border"
             }`}
           >
             <span className="grid h-16 w-16 place-items-center rounded-btn border border-green/40 bg-green-soft font-display text-xl font-bold text-green-dark">
