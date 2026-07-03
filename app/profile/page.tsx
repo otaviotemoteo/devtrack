@@ -39,11 +39,16 @@ export default async function ProfilePage() {
       cvFilename={latestDoc?.filename ?? null}
       hasImport={!!latestImport}
       context={{
-        targetRole: profile.targetRole,
-        industry: profile.industry,
-        extraInstructions: profile.extraInstructions,
+        situation: profile.situation,
+        currentRole: profile.currentRole ?? "",
+        currentCompany: profile.currentCompany ?? "",
+        currentSince: profile.currentSince ?? "",
+        projects: profile.projects ?? "",
+        targetRole: profile.targetRole ?? "",
+        industry: profile.industry ?? "",
+        extraInstructions: profile.extraInstructions ?? "",
       }}
-      contextPromptDismissed={profile.contextPromptDismissed}
+      experiences={profile.experiences}
       activities={activities}
     />
   );
