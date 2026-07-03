@@ -11,12 +11,17 @@ interface DashboardProps {
 const QUICK_ACTIONS = [
   {
     glyph: "in",
-    title: "Build LinkedIn",
-    subtitle: "From your GitHub work",
-    href: "/scan/new?type=linkedin",
+    title: "Audit LinkedIn",
+    subtitle: "Score your profile",
+    href: "/linkedin",
   },
   { glyph: "✓", title: "Improve CV", subtitle: "Score & sharpen", href: "/cv" },
-  { glyph: "</>", title: "New scan", subtitle: "Pull commits & PRs", href: "/scan/new" },
+  {
+    glyph: "</>",
+    title: "Scan GitHub",
+    subtitle: "Discover forgotten work",
+    href: "/scan/new",
+  },
 ];
 
 export function Dashboard({ name, activities }: DashboardProps) {
@@ -87,7 +92,7 @@ function EmptyState() {
       <p className="font-display text-2xl font-bold text-ink">Nothing yet</p>
       <p className="text-ink-soft">Start your first scan to see results here.</p>
       <Link
-        href="/scan/new"
+        href="/start"
         className="mt-2 inline-flex items-center gap-2 rounded-btn bg-green px-6 py-3 font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark"
       >
         Start your first scan
