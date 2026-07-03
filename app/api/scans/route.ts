@@ -4,11 +4,20 @@ import { db } from "@/db";
 import { scans } from "@/db/schema";
 import { scanConfigSchema } from "@/lib/scan/config";
 import { runScan } from "@/lib/run-scan";
+import { hasRepoScope } from "@/lib/github/scope";
 
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Scanning needs the elevated repo grant (the UI gate can be bypassed).
+  if (!(await hasRepoScope(session.user.id))) {
+    return NextResponse.json(
+      { error: "Repository access not granted — connect repositories first" },
+      { status: 403 }
+    );
   }
 
   let body: unknown;
