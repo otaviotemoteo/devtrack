@@ -8,6 +8,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { users } from "./auth-schema";
+import type { Experience } from "@/lib/experiences";
 
 export const scans = pgTable("scans", {
   id: text("id")
@@ -134,6 +135,17 @@ export const profileSettings = pgTable("profile_settings", {
   targetRole: text("targetRole"),
   industry: text("industry"),
   extraInstructions: text("extraInstructions"),
+  // Situational context: employed users get "sharpening" questions
+  // (currentRole/currentCompany), job seekers and students get targeting ones
+  // (targetRole/industry). All optional — generators degrade gracefully.
+  situation: text("situation", { enum: ["employed", "searching", "student"] }),
+  currentRole: text("currentRole"),
+  currentCompany: text("currentCompany"),
+  currentSince: text("currentSince"), // free text, e.g. "Mar 2022"
+  projects: text("projects"), // user-described side/study projects
+  // User-managed work experiences (lib/experiences.ts shape). Seeded once from
+  // the LinkedIn export / CV analysis with confirmed=false, then user-owned.
+  experiences: jsonb("experiences").$type<Experience[]>().notNull().default([]),
   onboarded: boolean("onboarded").notNull().default(false),
   firstChoice: text("firstChoice", { enum: ["linkedin", "cv", "github"] }),
   // "Skip for now" on the profile completion card — persists, never re-nags.
