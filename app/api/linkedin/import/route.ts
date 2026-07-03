@@ -5,24 +5,18 @@ import { db } from "@/db";
 import { linkedinImports } from "@/db/schema";
 import { parseLinkedInExport } from "@/lib/linkedin/import-export";
 import { fetchLinkedInProfileViaApify } from "@/lib/linkedin/apify";
-import { getLatestEvidenceScan, runGeneration } from "@/lib/run-generation";
+import { runStandaloneGeneration } from "@/lib/run-generation";
+import { scanConfigSchema } from "@/lib/scan/config";
 
 const MAX_BYTES = 25 * 1024 * 1024; // 25 MB
 
 // Import a LinkedIn profile (official export .zip, or Apify URL behind a flag)
-// → normalize → audit it against the latest GitHub evidence.
+// → normalize → audit it. GitHub evidence is optional enrichment — used when
+// a scan exists, gracefully skipped when it doesn't.
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const scan = await getLatestEvidenceScan(session.user.id);
-  if (!scan) {
-    return NextResponse.json(
-      { error: "Run a GitHub scan first" },
-      { status: 409 }
-    );
   }
 
   const contentType = request.headers.get("content-type") ?? "";
@@ -58,7 +52,11 @@ export async function POST(request: Request) {
       .insert(linkedinImports)
       .values({ userId: session.user.id, source, data });
 
-    const result = await runGeneration(scan.id, "linkedin_audit");
+    const result = await runStandaloneGeneration(
+      session.user.id,
+      "linkedin_audit",
+      scanConfigSchema.parse({ target: { kind: "global" } })
+    );
     return NextResponse.json({ generationId: result.generationId }, { status: 201 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "LinkedIn import failed";
