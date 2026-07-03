@@ -1,26 +1,27 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { db } from "@/db";
-import { profileSettings } from "@/db/schema";
-import { getOrCreateProfile } from "@/lib/profile";
+import { updateProfile } from "@/lib/profile";
+import { experienceSchema } from "@/lib/experiences";
 
 const bodySchema = z
   .object({
+    name: z.string().min(1).max(120).optional(),
+    githubLogin: z.string().max(60).nullable().optional(),
+    situation: z.enum(["employed", "searching", "student"]).optional(),
+    currentRole: z.string().max(200).nullable().optional(),
+    currentCompany: z.string().max(200).nullable().optional(),
+    currentSince: z.string().max(100).nullable().optional(),
+    projects: z.string().max(2000).nullable().optional(),
     targetRole: z.string().max(200).nullable().optional(),
     industry: z.string().max(200).nullable().optional(),
     extraInstructions: z.string().max(2000).nullable().optional(),
+    experiences: z.array(experienceSchema).max(20).optional(),
     contextPromptDismissed: z.boolean().optional(),
   })
-  .refine(
-    (d) =>
-      d.targetRole !== undefined ||
-      d.industry !== undefined ||
-      d.extraInstructions !== undefined ||
-      d.contextPromptDismissed !== undefined,
-    { message: "Provide at least one field" }
-  );
+  .refine((d) => Object.values(d).some((v) => v !== undefined), {
+    message: "Provide at least one field",
+  });
 
 // Save standing profile context (the default context for every generator).
 export async function PATCH(request: Request) {
@@ -44,13 +45,10 @@ export async function PATCH(request: Request) {
     );
   }
 
-  await getOrCreateProfile(session.user.id);
-
-  const [updated] = await db
-    .update(profileSettings)
-    .set({ ...parsed.data, updatedAt: new Date() })
-    .where(eq(profileSettings.userId, session.user.id))
-    .returning();
-
-  return NextResponse.json(updated);
+  try {
+    const updated = await updateProfile(session.user.id, parsed.data);
+    return NextResponse.json(updated);
+  } catch {
+    return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+  }
 }
