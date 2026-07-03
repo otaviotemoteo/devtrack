@@ -43,6 +43,7 @@ export default async function ProfilePage() {
         industry: profile.industry,
         extraInstructions: profile.extraInstructions,
       }}
+      contextPromptDismissed={profile.contextPromptDismissed}
       activities={activities}
     />
   );
