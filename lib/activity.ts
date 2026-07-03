@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { generations, scans } from "@/db/schema";
+import { generations } from "@/db/schema";
 import type { ActivityType } from "@/components/activity/activity-row";
 
 export interface ActivityItem {
@@ -25,8 +25,7 @@ export async function getActivity(
       scanId: generations.scanId,
     })
     .from(generations)
-    .innerJoin(scans, eq(generations.scanId, scans.id))
-    .where(eq(scans.userId, userId))
+    .where(eq(generations.userId, userId))
     .orderBy(desc(generations.createdAt))
     .limit(limit);
 
