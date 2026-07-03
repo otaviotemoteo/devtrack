@@ -4,6 +4,7 @@ import { aiProvider, resolveModel } from "../provider";
 import {
   COMPLIANCE_RULES,
   cleanList,
+  groundingBlock,
   profileContextLines,
   languageLabel,
 } from "../shared";
@@ -44,40 +45,44 @@ export const cvOutputSchema = z.object({
   missingKeywords: z
     .array(z.string())
     .describe(
-      "Skills/keywords proven by GitHub evidence but absent from the CV"
+      "Skills/keywords proven by GitHub evidence but absent from the CV (empty when no evidence)"
     ),
 });
 
 export type CvOutput = z.infer<typeof cvOutputSchema>;
 
 /**
- * STAGE 2 — analyze an uploaded CV against the GitHub Evidence and return an
- * actionable, ATS-aware before→after improvement.
+ * STAGE 2 — analyze an uploaded CV and return an actionable, ATS-aware
+ * before→after improvement. GitHub Evidence is optional enrichment: when
+ * present, the CV is cross-referenced against it; when absent, the analysis
+ * focuses purely on the CV text and never references GitHub work.
  */
 export async function analyzeCv(
-  evidence: Evidence,
   cvText: string,
-  config: ScanConfig
+  config: ScanConfig,
+  evidence?: Evidence
 ): Promise<GeneratorResult<CvOutput>> {
   const { provider, model } = aiProvider();
 
+  const evidenceRules = evidence
+    ? `- Surface "missing keywords": skills the GitHub evidence proves but the CV fails to mention.
+- Ground every suggestion in either the CV text or the evidence — do not invent achievements.`
+    : `- Focus purely on improving the provided CV text — do NOT reference, assume, or invent any GitHub work or repositories.
+- Ground every suggestion in the CV text alone — do not invent achievements. Return an empty missingKeywords list.`;
+
   const systemPrompt = `You are an expert technical recruiter and ATS (applicant tracking system) reviewer.
-Analyze the candidate's CV and cross-reference it against verified evidence of their GitHub work.
+Analyze the candidate's CV${evidence ? " and cross-reference it against verified evidence of their GitHub work" : ""}.
 Rules:
 - Write everything in ${languageLabel(config)}.
 - Reward quantified impact and clear, scannable structure; penalize vagueness, buzzwords, and ATS-hostile formatting.
-- Surface "missing keywords": skills the GitHub evidence proves but the CV fails to mention.
-- Ground every suggestion in either the CV text or the evidence — do not invent achievements.
+${evidenceRules}
 ${COMPLIANCE_RULES}
 
 Example issue (anonymized, for calibration): { "area": "Experience", "problem": "Bullets describe duties, not outcomes ('responsible for the API').", "fix": "Lead with impact: 'Cut API p95 latency 40% by adding a read-through cache.'" }${profileContextLines(
     config
-  )}`;
+  )}${groundingBlock(evidence)}`;
 
-  const userPrompt = `Verified GitHub evidence:
-${JSON.stringify(evidence, null, 2)}
-
-CV text to analyze:
+  const userPrompt = `CV text to analyze:
 ${cvText}`;
 
   try {
