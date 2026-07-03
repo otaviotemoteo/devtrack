@@ -4,6 +4,7 @@ import { aiProvider, resolveModel } from "../provider";
 import {
   COMPLIANCE_RULES,
   cleanList,
+  groundingBlock,
   profileContextLines,
   languageLabel,
 } from "../shared";
@@ -30,7 +31,9 @@ export const auditOutputSchema = z.object({
   improvedAbout: z.string(),
   suggestedSkills: z
     .array(z.string())
-    .describe("Skills proven by evidence but missing/weak on the profile"),
+    .describe(
+      "Skills missing/weak on the profile (proven by evidence when available)"
+    ),
   experienceRewrites: z
     .array(
       z.object({
@@ -45,33 +48,36 @@ export const auditOutputSchema = z.object({
 export type AuditOutput = z.infer<typeof auditOutputSchema>;
 
 /**
- * STAGE 2 — audit an imported LinkedIn profile against the GitHub Evidence and
- * return section-by-section gaps plus improved copy.
+ * STAGE 2 — audit an imported LinkedIn profile and return section-by-section
+ * gaps plus improved copy. GitHub Evidence is optional enrichment: when
+ * present, the profile is strengthened against real work; when absent, the
+ * audit improves the profile content alone and never references GitHub.
  */
 export async function auditLinkedIn(
-  evidence: Evidence,
   profile: unknown,
-  config: ScanConfig
+  config: ScanConfig,
+  evidence?: Evidence
 ): Promise<GeneratorResult<AuditOutput>> {
   const { provider, model } = aiProvider();
 
+  const evidenceRule = evidence
+    ? "- Use the GitHub evidence to add credible, specific substance — never fabricate."
+    : "- Focus purely on improving the provided profile content — do NOT reference, assume, or invent any GitHub work. Ground every suggestion in the profile alone; never fabricate achievements.";
+
   const systemPrompt = `You are a LinkedIn profile strategist for software engineers.
-Audit the user's current LinkedIn profile and strengthen it using verified evidence of their GitHub work.
+Audit the user's current LinkedIn profile${evidence ? " and strengthen it using verified evidence of their GitHub work" : ""}.
 Rules:
 - Write everything in ${languageLabel(config)}.
 - Identify concrete gaps section by section (headline, about, experience, skills).
-- Use the GitHub evidence to add credible, specific substance — never fabricate.
+${evidenceRule}
 ${COMPLIANCE_RULES}
 - Keep rewrites first-person, professional, and human.
 
 Example gap (anonymized, for calibration): { "section": "Headline", "gap": "Generic title with no specialization or value.", "suggestion": "Name the domain and the outcome: 'Platform engineer • CI/CD • ship 5x faster'." }${profileContextLines(
     config
-  )}`;
+  )}${groundingBlock(evidence)}`;
 
-  const userPrompt = `Verified GitHub evidence:
-${JSON.stringify(evidence, null, 2)}
-
-Current LinkedIn profile (normalized):
+  const userPrompt = `Current LinkedIn profile (normalized):
 ${JSON.stringify(profile, null, 2)}`;
 
   try {
