@@ -1,4 +1,5 @@
 import type { ScanConfig } from "@/lib/scan/config";
+import type { Evidence } from "./evidence";
 
 /** Compliance guardrails shared by every generator's system prompt. */
 export const COMPLIANCE_RULES = `- Never expose client names, internal or secret project names, or credentials.
@@ -36,6 +37,24 @@ export function profileContextLines(config: ScanConfig): string {
     parts.push(`Additional user instructions (honor these): ${config.extraInstructions}`);
   }
   return parts.length ? `\n\nProfile context:\n- ${parts.join("\n- ")}` : "";
+}
+
+/**
+ * Conditional grounding block: GitHub Evidence as optional enrichment.
+ * Present → the generator cross-references the artifact against real work.
+ * Absent → returns "" and the prompt must not reference GitHub at all.
+ * The marker string is also how result pages detect evidence-less runs
+ * (generations.prompt is persisted for audit).
+ */
+export const GROUNDING_MARKER = "GROUNDING EVIDENCE";
+
+export function groundingBlock(evidence?: Evidence): string {
+  if (!evidence) return "";
+  return `\n\n${GROUNDING_MARKER} (the user's real GitHub work — cross-reference the artifact against it: reinforce claims it can prove, and surface what it shows that the artifact is missing):\n${JSON.stringify(
+    evidence,
+    null,
+    2
+  )}`;
 }
 
 /** Trim, drop empties, dedupe (case-insensitive), and cap a string list. */
