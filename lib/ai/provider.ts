@@ -1,10 +1,16 @@
 import { google } from "@ai-sdk/google";
 import { groq } from "@ai-sdk/groq";
 
+/** Env aliases normalized to canonical provider names (audit trail stays canonical). */
+const PROVIDER_ALIASES: Record<string, string> = {
+  gemini: "google",
+};
+
 /** Current provider/model names, resolved from env (audit trail). */
 export function aiProvider(): { provider: string; model: string } {
+  const raw = process.env.AI_PROVIDER ?? "google";
   return {
-    provider: process.env.AI_PROVIDER ?? "google",
+    provider: PROVIDER_ALIASES[raw] ?? raw,
     model: process.env.AI_MODEL ?? "gemini-2.0-flash",
   };
 }
