@@ -4,6 +4,7 @@ import { TopNav } from "@/components/ui/top-nav";
 import { Card } from "@/components/ui/card";
 import { ActivityRow } from "@/components/activity/activity-row";
 import { ProfileContextForm } from "@/components/profile/profile-context-form";
+import { CompletionCard } from "@/components/profile/completion-card";
 import type { ActivityItem } from "@/lib/activity";
 
 interface ProfileHubProps {
@@ -17,6 +18,7 @@ interface ProfileHubProps {
     industry: string | null;
     extraInstructions: string | null;
   };
+  contextPromptDismissed: boolean;
   activities: ActivityItem[];
 }
 
@@ -27,6 +29,7 @@ export function ProfileHub({
   cvFilename,
   hasImport,
   context,
+  contextPromptDismissed,
   activities,
 }: ProfileHubProps) {
   return (
@@ -63,6 +66,12 @@ export function ProfileHub({
             + New scan
           </Link>
         </div>
+
+        <CompletionCard
+          targetRole={context.targetRole}
+          industry={context.industry}
+          dismissed={contextPromptDismissed}
+        />
 
         {/* Your sources */}
         <p className="eyebrow mt-12">Your sources</p>
