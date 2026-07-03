@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { TopNav } from "@/components/ui/top-nav";
+import { BackButton } from "@/components/ui/back-button";
 import { RepoPicker } from "@/components/scan/repo-picker";
 import { ConnectRepos } from "@/components/scan/connect-repos";
 import { hasRepoScope } from "@/lib/github/scope";
@@ -27,6 +28,9 @@ export default async function NewScanPage({
         variant="app"
         user={{ name: session.user.name, image: session.user.image }}
       />
+      <div className="mx-auto max-w-5xl px-6 pt-6">
+        <BackButton className="-ml-2.5" />
+      </div>
       {hasRepo ? (
         <RepoPicker generationType={generationType} />
       ) : (
