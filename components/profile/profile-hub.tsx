@@ -3,9 +3,13 @@ import Image from "next/image";
 import { TopNav } from "@/components/ui/top-nav";
 import { Card } from "@/components/ui/card";
 import { ActivityRow } from "@/components/activity/activity-row";
-import { ProfileContextForm } from "@/components/profile/profile-context-form";
+import { ProfileContextForm, type ProfileContext } from "@/components/profile/profile-context-form";
 import { CompletionCard } from "@/components/profile/completion-card";
+import { SignOutButton } from "@/components/profile/sign-out-button";
+import { EditableIdentity } from "@/components/profile/editable-identity";
+import { ExperienceCards } from "@/components/profile/experience-cards";
 import type { ActivityItem } from "@/lib/activity";
+import type { Experience } from "@/lib/experiences";
 
 interface ProfileHubProps {
   user: { name?: string | null; image?: string | null };
@@ -13,12 +17,8 @@ interface ProfileHubProps {
   repoCount: number;
   cvFilename: string | null;
   hasImport: boolean;
-  context: {
-    targetRole: string | null;
-    industry: string | null;
-    extraInstructions: string | null;
-  };
-  contextPromptDismissed: boolean;
+  context: ProfileContext;
+  experiences: Experience[];
   activities: ActivityItem[];
 }
 
@@ -29,13 +29,25 @@ export function ProfileHub({
   cvFilename,
   hasImport,
   context,
-  contextPromptDismissed,
+  experiences,
   activities,
 }: ProfileHubProps) {
+  // Same completion rule as CompletionCard: progressive disclosure — the
+  // Experience section only appears once the situational context is answered.
+  const contextComplete =
+    !!context.situation &&
+    !!(context.situation === "employed" ? context.currentRole : context.targetRole);
+
   return (
     <div className="min-h-screen bg-bg">
       <TopNav variant="app" user={user} />
       <main className="mx-auto max-w-5xl px-6 py-12">
+        <CompletionCard
+          situation={context.situation}
+          currentRole={context.currentRole || null}
+          targetRole={context.targetRole || null}
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -50,31 +62,21 @@ export function ProfileHub({
                 />
               ) : null}
             </span>
-            <div>
-              <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
-                {user.name ?? "Your profile"}
-              </h1>
-              {githubLogin && (
-                <p className="font-mono text-sm text-ink-soft">@{githubLogin}</p>
-              )}
-            </div>
+            <EditableIdentity name={user.name ?? null} githubLogin={githubLogin} />
           </div>
+          <SignOutButton />
+        </div>
+
+        {/* Your sources */}
+        <div className="mt-12 flex items-center justify-between gap-4">
+          <p className="eyebrow">Your sources</p>
           <Link
-            href="/scan/new"
-            className="inline-flex items-center gap-2 rounded-btn bg-green px-5 py-2.5 font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark"
+            href="/"
+            className="inline-flex items-center gap-2 rounded-btn bg-green px-4 py-2 text-sm font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark"
           >
             + New scan
           </Link>
         </div>
-
-        <CompletionCard
-          targetRole={context.targetRole}
-          industry={context.industry}
-          dismissed={contextPromptDismissed}
-        />
-
-        {/* Your sources */}
-        <p className="eyebrow mt-12">Your sources</p>
         <div className="mt-4 grid gap-5 sm:grid-cols-3">
           <SourceCard
             title="GitHub"
@@ -121,7 +123,7 @@ export function ProfileHub({
         </div>
 
         {/* Profile context */}
-        <Card className="mt-8 p-8">
+        <Card className="mt-8 scroll-mt-24 p-8" id="profile-context">
           <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
             Profile context
           </h2>
@@ -131,9 +133,31 @@ export function ProfileHub({
           <ProfileContextForm initial={context} />
         </Card>
 
+        {/* Experience — appears once the context above is answered */}
+        {contextComplete && (
+          <Card className="mt-8 p-8">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
+              {context.situation === "student"
+                ? "Any experience yet?"
+                : "Did you have other experiences before?"}
+            </h2>
+            <p className="mt-1 text-ink-soft">
+              {context.situation === "student"
+                ? "Internships and freelance count — and we pre-fill from your LinkedIn / CV imports."
+                : "List previous work — we also pre-fill from your LinkedIn / CV imports."}
+            </p>
+            {/* Key remounts the editor when the server-side list changes
+                (e.g. an import or the context save seeded new cards). */}
+            <ExperienceCards
+              key={experiences.map((e) => e.id).join("|") || "empty"}
+              initial={experiences}
+            />
+          </Card>
+        )}
+
         {/* History */}
-        <Card className="mt-8 px-6 py-2">
-          <div className="px-1 py-5">
+        <Card className="mt-8 p-6">
+          <div className="pb-5">
             <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
               History
             </h2>
@@ -142,17 +166,21 @@ export function ProfileHub({
             </p>
           </div>
           {activities.length === 0 ? (
-            <p className="px-1 pb-6 text-ink-soft">Nothing yet.</p>
+            <p className="pb-1 text-ink-soft">Nothing yet.</p>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="space-y-3">
               {activities.map((a) => (
-                <ActivityRow
+                <div
                   key={a.id}
-                  type={a.type}
-                  label={a.label}
-                  timestamp={a.timestamp}
-                  href={a.href}
-                />
+                  className="rounded-card border border-border bg-bg px-5"
+                >
+                  <ActivityRow
+                    type={a.type}
+                    label={a.label}
+                    timestamp={a.timestamp}
+                    href={a.href}
+                  />
+                </div>
               ))}
             </div>
           )}
