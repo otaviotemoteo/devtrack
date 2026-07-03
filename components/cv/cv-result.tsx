@@ -5,17 +5,26 @@ import { BeforeAfter } from "@/components/results/before-after";
 import { RegenerateButton } from "@/components/results/regenerate-button";
 import type { CvOutput } from "@/lib/ai/generators/cv";
 
-export function CvResult({ cv, scanId }: { cv: CvOutput; scanId: string }) {
+export function CvResult({
+  cv,
+  scanId,
+}: {
+  cv: CvOutput;
+  scanId: string | null;
+}) {
   return (
     <>
       <Card className="flex items-center justify-between gap-4 p-7">
         <ScoreRing score={cv.score} verdict={cv.verdict} />
-        <RegenerateButton
-          scanId={scanId}
-          type="cv"
-          resultBase="/cv"
-          label="Re-analyze"
-        />
+        {/* Regeneration is scan-anchored; standalone results re-run via re-upload. */}
+        {scanId && (
+          <RegenerateButton
+            scanId={scanId}
+            type="cv"
+            resultBase="/cv"
+            label="Re-analyze"
+          />
+        )}
       </Card>
 
       {cv.strengths.length > 0 && (
