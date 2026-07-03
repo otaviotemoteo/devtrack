@@ -29,7 +29,14 @@ export async function getOrCreateProfile(
       const { data: me } = await new Octokit({ auth: token }).users.getAuthenticated();
       const [updated] = await db
         .update(profileSettings)
-        .set({ githubLogin: me.login, updatedAt: new Date() })
+        .set({
+          githubLogin: me.login,
+          // Suggested from the GitHub bio/company — editable, never overwrites
+          // a value the user already set, never blocks anything.
+          targetRole: profile.targetRole ?? me.bio ?? undefined,
+          industry: profile.industry ?? me.company?.replace(/^@/, "") ?? undefined,
+          updatedAt: new Date(),
+        })
         .where(eq(profileSettings.userId, userId))
         .returning();
       if (updated) profile = updated;
