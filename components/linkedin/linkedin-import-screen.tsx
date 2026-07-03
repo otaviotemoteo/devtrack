@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopNav } from "@/components/ui/top-nav";
 import { Dropzone } from "@/components/ui/dropzone";
-import { EvidenceGate } from "@/components/scan/evidence-gate";
 
 const inputClass =
   "w-full rounded-input border border-border bg-bg px-4 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20";
@@ -69,10 +68,13 @@ export function LinkedinImportScreen({
           Import your profile to get a scored audit.
         </p>
 
-        {!hasEvidence ? (
-          <EvidenceGate what="The LinkedIn audit" />
-        ) : (
-          <div className="mt-10 space-y-6">
+        {hasEvidence && (
+          <p className="mt-4 text-center text-sm text-green-dark">
+            ✓ The audit will be grounded in your GitHub evidence.
+          </p>
+        )}
+
+        <div className="mt-10 space-y-6">
             {/* Recommended — official export */}
             <div className="rounded-card border-2 border-green bg-bg p-7 shadow-soft">
               <div className="flex items-start justify-between gap-4">
@@ -137,7 +139,6 @@ export function LinkedinImportScreen({
 
             {error && <p className="text-sm text-red-600">{error}</p>}
           </div>
-        )}
       </main>
     </div>
   );
