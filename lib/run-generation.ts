@@ -39,19 +39,7 @@ export async function runGeneration(
 
   const config = scanConfigSchema.parse(scan.config);
   const evidence: Evidence = evidenceSchema.parse(scan.evidence);
-
-  // Merge standing profile context as defaults — it's the default context for
-  // every generator.
-  const profile = await getOrCreateProfile(scan.userId);
-  const mergedInstructions = [profile.extraInstructions, config.extraInstructions]
-    .filter(Boolean)
-    .join("\n\n");
-  const effectiveConfig: ScanConfig = {
-    ...config,
-    targetRole: config.targetRole ?? profile.targetRole ?? undefined,
-    industry: config.industry ?? profile.industry ?? undefined,
-    extraInstructions: mergedInstructions || undefined,
-  };
+  const effectiveConfig = await mergeProfileContext(scan.userId, config);
 
   let result;
   switch (type) {
@@ -60,16 +48,16 @@ export async function runGeneration(
       break;
     case "cv":
       result = await analyzeCv(
-        evidence,
         await latestCvText(scan.userId),
-        effectiveConfig
+        effectiveConfig,
+        evidence
       );
       break;
     case "linkedin_audit":
       result = await auditLinkedIn(
-        evidence,
         await latestLinkedInProfile(scan.userId),
-        effectiveConfig
+        effectiveConfig,
+        evidence
       );
       break;
     default:
@@ -97,6 +85,7 @@ export async function runGeneration(
   const [inserted] = await db
     .insert(generations)
     .values({
+      userId: scan.userId,
       scanId,
       type,
       provider: result.provider,
@@ -110,8 +99,87 @@ export async function runGeneration(
   return { generationId: inserted.id, type, output };
 }
 
-/** Most recent scan that has stored evidence — the source CV/audit reuse. */
-export async function getLatestEvidenceScan(userId: string) {
+/**
+ * Standalone Stage 2 — CV/audit generation without a scan. The latest stored
+ * Evidence (if any) is passed as optional enrichment; the generators degrade
+ * gracefully without it. Never creates or writes evidence — the GitHub scan
+ * is the only evidence producer.
+ */
+export async function runStandaloneGeneration(
+  userId: string,
+  type: Extract<GenerationType, "cv" | "linkedin_audit">,
+  config: ScanConfig
+): Promise<RunGenerationResult> {
+  const evidence = await getLatestEvidence(userId);
+  const effectiveConfig = await mergeProfileContext(userId, config);
+
+  const result =
+    type === "cv"
+      ? await analyzeCv(
+          await latestCvText(userId),
+          effectiveConfig,
+          evidence ?? undefined
+        )
+      : await auditLinkedIn(
+          await latestLinkedInProfile(userId),
+          effectiveConfig,
+          evidence ?? undefined
+        );
+
+  const [inserted] = await db
+    .insert(generations)
+    .values({
+      userId,
+      scanId: null,
+      type,
+      provider: result.provider,
+      model: result.model,
+      prompt: result.prompt,
+      rawResponse: result.rawResponse,
+      output: result.output as never,
+    })
+    .returning({ id: generations.id });
+
+  return {
+    generationId: inserted.id,
+    type,
+    output: result.output as Record<string, unknown>,
+  };
+}
+
+/**
+ * Merge standing profile context as defaults — it's the default context for
+ * every generator. Config-time values win over profile values.
+ */
+async function mergeProfileContext(
+  userId: string,
+  config: ScanConfig
+): Promise<ScanConfig> {
+  const profile = await getOrCreateProfile(userId);
+  const mergedInstructions = [profile.extraInstructions, config.extraInstructions]
+    .filter(Boolean)
+    .join("\n\n");
+  return {
+    ...config,
+    targetRole: config.targetRole ?? profile.targetRole ?? undefined,
+    industry: config.industry ?? profile.industry ?? undefined,
+    extraInstructions: mergedInstructions || undefined,
+  };
+}
+
+/**
+ * Latest stored Evidence for the user, or null. Read-only — CV/audit call
+ * this for optional grounding; they never produce evidence.
+ */
+export async function getLatestEvidence(
+  userId: string
+): Promise<Evidence | null> {
+  const scan = await getLatestEvidenceScan(userId);
+  return scan ? evidenceSchema.parse(scan.evidence) : null;
+}
+
+/** Most recent scan that has stored evidence — the only evidence source. */
+async function getLatestEvidenceScan(userId: string) {
   const [scan] = await db
     .select()
     .from(scans)
