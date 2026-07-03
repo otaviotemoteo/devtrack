@@ -6,7 +6,9 @@ import { generateLinkedIn } from "@/lib/ai/generators/linkedin";
 import { analyzeCv } from "@/lib/ai/generators/cv";
 import { auditLinkedIn } from "@/lib/ai/generators/linkedin-audit";
 import { scanConfigSchema, type ScanConfig } from "@/lib/scan/config";
-import { getOrCreateProfile } from "@/lib/profile";
+import { getOrCreateProfile, seedExperiences } from "@/lib/profile";
+import { experienceDraftSchema } from "@/lib/experiences";
+import { z } from "zod";
 
 export type GenerationType = "linkedin" | "cv" | "linkedin_audit";
 
@@ -113,18 +115,30 @@ export async function runStandaloneGeneration(
   const evidence = await getLatestEvidence(userId);
   const effectiveConfig = await mergeProfileContext(userId, config);
 
-  const result =
-    type === "cv"
-      ? await analyzeCv(
-          await latestCvText(userId),
-          effectiveConfig,
-          evidence ?? undefined
-        )
-      : await auditLinkedIn(
-          await latestLinkedInProfile(userId),
-          effectiveConfig,
-          evidence ?? undefined
-        );
+  let result;
+  if (type === "cv") {
+    result = await analyzeCv(
+      await latestCvText(userId),
+      effectiveConfig,
+      evidence ?? undefined
+    );
+    // Pre-fill the profile's experience cards from what the analysis found in
+    // the CV — profile context only (fills an empty list, never evidence).
+    await trySeedExperiences(
+      userId,
+      (result.output as { extractedExperiences?: unknown }).extractedExperiences,
+      "cv"
+    );
+  } else {
+    const profile = await latestLinkedInProfile(userId);
+    // Same pre-fill from the structured positions in the LinkedIn import.
+    await trySeedExperiences(
+      userId,
+      (profile as { experience?: unknown })?.experience,
+      "linkedin"
+    );
+    result = await auditLinkedIn(profile, effectiveConfig, evidence ?? undefined);
+  }
 
   const [inserted] = await db
     .insert(generations)
@@ -163,8 +177,34 @@ async function mergeProfileContext(
     ...config,
     targetRole: config.targetRole ?? profile.targetRole ?? undefined,
     industry: config.industry ?? profile.industry ?? undefined,
+    situation: config.situation ?? profile.situation ?? undefined,
+    currentRole: config.currentRole ?? profile.currentRole ?? undefined,
+    currentCompany: config.currentCompany ?? profile.currentCompany ?? undefined,
+    currentSince: config.currentSince ?? profile.currentSince ?? undefined,
+    projects: config.projects ?? profile.projects ?? undefined,
+    experiences:
+      config.experiences ??
+      (profile.experiences.length > 0 ? profile.experiences : undefined),
     extraInstructions: mergedInstructions || undefined,
   };
+}
+
+/**
+ * Best-effort experience pre-fill: loosely validate whatever the import/AI
+ * produced and hand it to `seedExperiences` (which only fills an empty list).
+ * Never lets a seeding problem fail the generation.
+ */
+async function trySeedExperiences(
+  userId: string,
+  raw: unknown,
+  source: "linkedin" | "cv"
+): Promise<void> {
+  try {
+    const parsed = z.array(experienceDraftSchema).safeParse(raw);
+    if (parsed.success) await seedExperiences(userId, parsed.data, source);
+  } catch {
+    // Profile enrichment only — the generation result matters more.
+  }
 }
 
 /**
