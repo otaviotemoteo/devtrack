@@ -47,6 +47,18 @@ export const cvOutputSchema = z.object({
     .describe(
       "Skills/keywords proven by GitHub evidence but absent from the CV (empty when no evidence)"
     ),
+  extractedExperiences: z
+    .array(
+      z.object({
+        company: z.string(),
+        role: z.string(),
+        period: z.string().describe("e.g. '2022 – now'; empty if not stated"),
+        description: z.string().describe("Short summary of the position; empty if not stated"),
+      })
+    )
+    .describe(
+      "Real work positions found in the CV text, copied faithfully — NEVER invented or embellished; empty if the CV lists none"
+    ),
 });
 
 export type CvOutput = z.infer<typeof cvOutputSchema>;
@@ -75,6 +87,7 @@ Analyze the candidate's CV${evidence ? " and cross-reference it against verified
 Rules:
 - Write everything in ${languageLabel(config)}.
 - Reward quantified impact and clear, scannable structure; penalize vagueness, buzzwords, and ATS-hostile formatting.
+- Extract the work positions the CV actually lists into extractedExperiences, verbatim facts only (company, role, period) — never invent one.
 ${evidenceRules}
 ${COMPLIANCE_RULES}
 
