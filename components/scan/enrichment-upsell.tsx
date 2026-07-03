@@ -22,7 +22,7 @@ export function EnrichmentUpsell({ what }: { what: string }) {
           href="/scan/new"
           className="text-sm font-semibold text-green-dark transition-colors hover:text-green"
         >
-          Run a scan →
+          Scan again →
         </Link>
         <button
           onClick={() => setDismissed(true)}
