@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopNav } from "@/components/ui/top-nav";
 import { Dropzone } from "@/components/ui/dropzone";
+import { BackButton } from "@/components/ui/back-button";
+import { ProcessingScreen } from "@/components/ui/processing-screen";
 
 const inputClass =
   "w-full rounded-input border border-border bg-bg px-4 py-2.5 text-ink placeholder:text-ink-soft/60 focus:border-green focus:outline-none focus:ring-2 focus:ring-green/20";
@@ -57,10 +59,26 @@ export function LinkedinImportScreen({
     });
   }
 
+  if (busy) {
+    return (
+      <ProcessingScreen
+        title="Auditing your LinkedIn…"
+        stages={[
+          "Reading your export…",
+          "Parsing your profile…",
+          "Analyzing with AI…",
+          "Writing your audit…",
+        ]}
+        videoSrc="/background-2.mp4"
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <TopNav variant="app" user={user} working={busy} />
       <main className="mx-auto max-w-3xl px-6 py-16">
+        <BackButton className="-ml-2.5 mb-6" />
         <h1 className="text-center font-display text-4xl font-bold tracking-tight text-ink">
           Audit your LinkedIn
         </h1>
