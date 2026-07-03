@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopNav } from "@/components/ui/top-nav";
 import { Dropzone } from "@/components/ui/dropzone";
-import { EvidenceGate } from "@/components/scan/evidence-gate";
 
 interface CvScreenProps {
   user: { name?: string | null; image?: string | null };
@@ -45,27 +44,29 @@ export function CvScreen({ user, hasEvidence }: CvScreenProps) {
           We&apos;ll score it and suggest improvements.
         </p>
 
-        {!hasEvidence ? (
-          <EvidenceGate what="CV analysis" />
-        ) : (
-          <div className="mt-10">
-            <Dropzone
-              accept=".pdf,.docx"
-              maxSizeMB={10}
-              title="Drop your CV here"
-              hint="PDF or DOCX · up to 10 MB"
-              onFile={setFile}
-            />
-            {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-            <button
-              onClick={analyze}
-              disabled={!file || busy}
-              className="mt-6 inline-flex w-full items-center justify-center rounded-btn bg-green px-6 py-4 font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark disabled:opacity-60"
-            >
-              {busy ? "Analyzing…" : "Analyze"}
-            </button>
-          </div>
+        {hasEvidence && (
+          <p className="mt-4 text-center text-sm text-green-dark">
+            ✓ Results will be grounded in your GitHub evidence.
+          </p>
         )}
+
+        <div className="mt-10">
+          <Dropzone
+            accept=".pdf,.docx"
+            maxSizeMB={10}
+            title="Drop your CV here"
+            hint="PDF or DOCX · up to 10 MB"
+            onFile={setFile}
+          />
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          <button
+            onClick={analyze}
+            disabled={!file || busy}
+            className="mt-6 inline-flex w-full items-center justify-center rounded-btn bg-green px-6 py-4 font-semibold text-white shadow-soft transition-colors duration-200 hover:bg-green-dark disabled:opacity-60"
+          >
+            {busy ? "Analyzing…" : "Analyze"}
+          </button>
+        </div>
       </main>
     </div>
   );
