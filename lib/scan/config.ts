@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { experienceDraftSchema } from "@/lib/experiences";
 
 /**
  * ScanConfig — the answers collected by the onboarding form.
@@ -58,6 +59,13 @@ export const scanConfigSchema = z.object({
   // Standing profile context, merged from profile_settings at generation time.
   targetRole: z.string().optional(),
   industry: z.string().optional(),
+  situation: z.enum(["employed", "searching", "student"]).optional(),
+  currentRole: z.string().optional(),
+  currentCompany: z.string().optional(),
+  currentSince: z.string().optional(),
+  projects: z.string().optional(),
+  // User-managed experiences (profile cards), passed as prompt context only.
+  experiences: z.array(experienceDraftSchema).optional(),
 
   // Which generator runs in stage 2 of the harness.
   generationType: z.enum(["linkedin", "cv", "linkedin_audit"]).default("linkedin"),
