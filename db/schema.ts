@@ -32,9 +32,12 @@ export const generations = pgTable("generations", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  scanId: text("scanId")
+  userId: text("userId")
     .notNull()
-    .references(() => scans.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: "cascade" }),
+  // Null for standalone CV/audit generations (no scan involved) — the scan is
+  // the only evidence producer, so we never create placeholder scans.
+  scanId: text("scanId").references(() => scans.id, { onDelete: "cascade" }),
   type: text("type", {
     enum: ["linkedin", "portfolio", "cv", "linkedin_audit"],
   })
@@ -133,6 +136,10 @@ export const profileSettings = pgTable("profile_settings", {
   extraInstructions: text("extraInstructions"),
   onboarded: boolean("onboarded").notNull().default(false),
   firstChoice: text("firstChoice", { enum: ["linkedin", "cv", "github"] }),
+  // "Skip for now" on the profile completion card — persists, never re-nags.
+  contextPromptDismissed: boolean("contextPromptDismissed")
+    .notNull()
+    .default(false),
   githubLogin: text("githubLogin"), // cached @handle for the profile header
   createdAt: timestamp("createdAt", { mode: "date" }).notNull().defaultNow(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull().defaultNow(),
