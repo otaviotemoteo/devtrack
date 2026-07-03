@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { TopNav } from "@/components/ui/top-nav";
 import { Dropzone } from "@/components/ui/dropzone";
+import { BackButton } from "@/components/ui/back-button";
+import { ProcessingScreen } from "@/components/ui/processing-screen";
 
 interface CvScreenProps {
   user: { name?: string | null; image?: string | null };
@@ -33,10 +35,26 @@ export function CvScreen({ user, hasEvidence }: CvScreenProps) {
     }
   }
 
+  if (busy) {
+    return (
+      <ProcessingScreen
+        title="Analyzing your CV…"
+        stages={[
+          "Reading your CV…",
+          "Extracting your experience…",
+          "Analyzing with AI…",
+          "Writing recommendations…",
+        ]}
+        videoSrc="/background-1.mp4"
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <TopNav variant="app" user={user} working={busy} />
       <main className="mx-auto max-w-2xl px-6 py-16">
+        <BackButton className="-ml-2.5 mb-6" />
         <h1 className="text-center font-display text-4xl font-bold tracking-tight text-ink">
           Analyze your CV
         </h1>
