@@ -1,8 +1,12 @@
-# Design Brief — DevTrack
+# Design System
 
-A personal tool that scans your GitHub activity and turns it into LinkedIn-ready content.
-Hand this to Claude Design page-by-page or whole. UI copy is **Portuguese (pt-BR)** — example
-strings below are the real labels to use.
+The visual language and the screen-by-screen brief for DevTrack, a tool that
+scans your GitHub activity and turns it into LinkedIn-ready content.
+
+The example strings below came from the original brief, when the interface was
+planned in Portuguese. It shipped in English, so read them as intent rather than
+as the labels in the code: `app/` and `components/` are the source of truth for
+copy.
 
 ---
 
@@ -37,16 +41,13 @@ smooth-scrolling page (Lenis).
 
 **Structure (top to bottom):**
 - **Minimal nav:** wordmark left, single "Entrar" button right.
-- **Hero:** a confident headline (value prop — e.g. *"Transforme seu trabalho no GitHub em um
-  perfil de LinkedIn que impressiona"*), a one-line subhead, a primary CTA button
-  *"Entrar com GitHub"*. A subtle, abstract visual on the side or behind — think soft green accent
+- **Hero:** a confident headline (value prop — e.g. *"Turn your GitHub work into a LinkedIn profile that lands"*), a one-line subhead, a primary CTA button
+  *"Sign in with GitHub"*. A subtle, abstract visual on the side or behind — think soft green accent
   shapes or a stylized commit-graph motif. Airy, not busy.
-- **How it works:** 3–4 steps with simple icons — *Conecte o GitHub → Faça a varredura →
-  A IA gera o conteúdo → Cole no LinkedIn*.
-- **What you get:** preview cards of the output types (Título, Sobre, Competências, Experiências),
+- **How it works:** 3–4 steps with simple icons — *Connect GitHub, run the scan, get the content, paste it into LinkedIn*.
+- **What you get:** preview cards of the output types (headline, about, skills, experience),
   hinting at the real result.
-- **Trust / privacy strip:** short reassurance — *seus dados ficam auditáveis e nada técnico-sensível
-  entra no texto gerado*.
+- **Trust / privacy strip:** short reassurance — *your data stays auditable, and nothing technically sensitive reaches the generated text*.
 - **Closing CTA + minimal footer.**
 
 **Interactions:** smooth scroll, gentle reveal-on-scroll for each section, subtle hover on CTAs.
@@ -57,9 +58,9 @@ smooth-scrolling page (Lenis).
 
 **Purpose:** a single action. No friction, no fields.
 
-**Layout:** centered card on a clean background. Wordmark, a short line (*"Entre para começar"*),
-one large **"Entrar com GitHub"** button with the GitHub mark. Below it, tiny muted microcopy about
-what's accessed (*"Vamos ler seus commits e pull requests pra gerar seu conteúdo."*). A small
+**Layout:** centered card on a clean background. Wordmark, a short line (*"Sign in to get started"*),
+one large **"Sign in with GitHub"** button with the GitHub mark. Below it, tiny muted microcopy about
+what's accessed (*"We will read your commits and pull requests to generate your content."*). A small
 "← voltar" link to the landing.
 
 **Notes:** single-role app — no email/password, no register/login tabs. Just the GitHub button.
@@ -71,18 +72,18 @@ what's accessed (*"Vamos ler seus commits e pull requests pra gerar seu conteúd
 **Purpose:** collect the scan settings in one clean, friendly screen (not a multi-step wizard).
 This is the most form-heavy page — keep it intuitive and warm.
 
-**Layout:** centered, conversational. Title *"Vamos varrer seu GitHub"* with a short subtitle.
+**Layout:** centered, conversational. Title *"Let's scan your GitHub"* with a short subtitle.
 A single card/column holding the controls, primary button at the bottom.
 
 **Controls (in order):**
-- Toggle — *"Incluir projetos pessoais"* (default on).
-- Toggle — *"Incluir contribuições em organizações"* (default on). When on, optionally reveal
-  org selection as chips (or a simple *"todas as organizações"* default).
-- Date range — *"De"* / *"Até"* (optional; default = todo o período). Two date inputs.
-- Segmented control — *"Esse conteúdo é pra..."* → **[ Perfil global ]  [ Uma empresa específica ]**.
-  When "empresa" is selected, smoothly reveal three fields: *Nome da empresa*, *Cargo*, *Período*.
+- Toggle — *"Include personal projects"* (default on).
+- Toggle — *"Include organization contributions"* (default on). When on, optionally reveal
+  org selection as chips (or a simple *"all organizations"* default).
+- Date range — *"From"* / *"To"* (optional; defaults to the whole period). Two date inputs.
+- Segmented control — *"This content is for..."* → **[ My whole profile ]  [ One specific company ]**.
+  When the company option is selected, smoothly reveal three fields: *company name*, *role*, *period*.
 - Toggle/segmented — output language: **PT / EN** (default PT).
-- Primary button — **"Iniciar varredura"**.
+- Primary button — **"Start scan"**.
 
 **Interactions:** progressive disclosure (company fields appear only when chosen, with a smooth
 reveal). Short helper microcopy under the less-obvious fields. Everything on one screen.
@@ -95,12 +96,12 @@ reveal). Short helper microcopy under the less-obvious fields. Everything on one
 
 **Layout:** centered, minimal. A horizontal progress bar (green fill, smooth growth) with the
 percentage, and a rotating status line beneath it that reflects the real stage:
-*"Lendo seus repositórios..."* → *"Analisando commits e PRs..."* → *"Gerando seu conteúdo com IA..."*.
+*"Reading your repositories..."* → *"Analysing commits and PRs..."* → *"Generating your content..."*.
 A subtle ambient animation (e.g. a soft pulsing dot or a light scanning shimmer) to signal activity.
 
 **States:**
 - **Running:** bar + percentage + status line.
-- **Error:** friendly message (*"Algo deu errado na varredura."*) + a *"Tentar de novo"* button.
+- **Error:** friendly message (*"Something went wrong during the scan."*) + a *"Try again"* button.
 - **Done:** auto-redirects to results (no manual click needed).
 
 **Notes:** no fake/placeholder content. Restrained motion, on-brand.
@@ -112,19 +113,19 @@ A subtle ambient animation (e.g. a soft pulsing dot or a light scanning shimmer)
 **Purpose:** present the generated content as labeled, copy-paste-ready blocks. The copy action is
 the hero interaction. Highly scannable.
 
-**Layout:** a clean single column of cards. Top: a short heading (*"Pronto! Aqui está seu conteúdo"*)
-and a secondary *"Varrer de novo"* action. Each block is a card with: a clear label of **where it
-goes on LinkedIn**, the generated content, and a **"Copiar"** button (with *"Copiado ✓"* feedback).
+**Layout:** a clean single column of cards. Top: a short heading (*"Done. Here is your content"*)
+and a secondary *"Scan again"* action. Each block is a card with: a clear label of **where it
+goes on LinkedIn**, the generated content, and a **"Copy"** button (with *"Copied"* feedback).
 
 **Blocks:**
-- **Título do perfil (Headline)** → single line of text.
-- **Seção "Sobre"** → a paragraph.
+- **Headline** produces a single line of text.
+- **The "About" section** produces a paragraph.
 - **Competências (Skills)** → the skills as tags/chips, with a "copy all" action.
-- **Experiências** → a labeled group; one sub-card per experience showing *empresa · cargo · período*
+- **Experience** produces a labeled group; one sub-card per entry showing *company, role, period*
   and a bullet list, each with its own copy button.
 
-**Interactions:** the primary delight is "Copiar → Copiado ✓" with a brief, satisfying micro-feedback.
-Generous spacing between cards so nothing feels dense. Optionally a small "onde colar isso?" hint per
+**Interactions:** the primary delight is "Copy → Copied" with a brief, satisfying micro-feedback.
+Generous spacing between cards so nothing feels dense. Optionally a small "where do I paste this?" hint per
 block reinforcing the LinkedIn placement.
 
 **Notes:** read-and-copy only for now (inline editing is a future feature). Keep the page focused on
