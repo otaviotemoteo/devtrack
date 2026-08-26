@@ -11,7 +11,11 @@ export function aiProvider(): { provider: string; model: string } {
   const raw = process.env.AI_PROVIDER ?? "google";
   return {
     provider: PROVIDER_ALIASES[raw] ?? raw,
-    model: process.env.AI_MODEL ?? "gemini-2.0-flash",
+    // gemini-2.0-flash was retired: a live call now 404s and the error itself
+    // names gemini-3.6-flash as the replacement. Worth knowing that a default
+    // pointing at a vendor's model name expires silently, and fails deep inside
+    // a generation rather than at startup.
+    model: process.env.AI_MODEL ?? "gemini-3.6-flash",
   };
 }
 
